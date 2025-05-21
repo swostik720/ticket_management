@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description');
             $table->foreignId('department_id')->constrained();
+            $table->foreignId('branch_id')->constrained();
             $table->enum('urgency', ['low', 'medium', 'high', 'critical'])->default('medium');
             $table->enum('status', ['open', 'in_progress', 'closed', 'escalated', 'not_resolved'])->default('open');
             $table->string('attachment')->nullable();

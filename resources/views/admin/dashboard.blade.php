@@ -67,6 +67,7 @@
                             <th>ID</th>
                             <th>Title</th>
                             <th>Department</th>
+                            <th>Branch</th>
                             <th>Submitted By</th>
                             <th>Assigned To</th>
                             <th>Urgency</th>
@@ -81,6 +82,7 @@
                                 <td>{{ $ticket->id }}</td>
                                 <td>{{ $ticket->title }}</td>
                                 <td>{{ $ticket->department->name }}</td>
+                                <td>{{ $ticket->branch->name }}</td>
                                 <td>{{ $ticket->user->name }}</td>
                                 <td>{{ $ticket->assignedTo ? $ticket->assignedTo->name : 'Not assigned' }}</td>
                                 <td>
@@ -102,7 +104,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">No tickets found.</td>
+                                <td colspan="10" class="text-center">No tickets found.</td>
                             </tr>
                         @endforelse
                     </tbody>

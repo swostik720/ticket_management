@@ -16,6 +16,9 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'department_id',
+        'branch_id',
+        'username',
     ];
 
     protected $hidden = [
@@ -28,9 +31,6 @@ class User extends Authenticatable
         // 'password' => 'hashed',
     ];
 
-    /**
-     * Set the password attribute and automatically hash it.
-     */
     public function setPasswordAttribute($value)
     {
         $this->attributes['password'] = Hash::make($value);
@@ -46,9 +46,24 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class, 'assigned_to');
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';
+    }
+
+    public function isHeadOfDepartment()
+    {
+        return $this->role === 'head_of_department';
     }
 
     public function isStaff()
@@ -56,8 +71,18 @@ class User extends Authenticatable
         return $this->role === 'staff';
     }
 
-    public function isUser()
+    public function isHeadOfficeStaff()
     {
-        return $this->role === 'user';
+        return $this->role === 'head_office_staff';
+    }
+
+    public function canAssignTickets()
+    {
+        return $this->isAdmin() || $this->isHeadOfDepartment();
     }
 }
+
+
+
+
+

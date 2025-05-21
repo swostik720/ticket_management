@@ -13,6 +13,7 @@ class Ticket extends Model
         'title',
         'description',
         'department_id',
+        'branch_id',
         'urgency',
         'status',
         'attachment',
@@ -33,5 +34,10 @@ class Ticket extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
     }
 }

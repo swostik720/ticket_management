@@ -16,6 +16,7 @@
                         <div class="col-md-6">
                             <p><strong>Department:</strong> {{ $ticket->department->name }}</p>
                             <p><strong>Branch:</strong> {{ $ticket->branch->name }}</p>
+                            <p><strong>Created by:</strong> {{ $ticket->user->name }} ({{ $ticket->user->email }})</p>
                             <p><strong>Created at:</strong> {{ $ticket->created_at->format('M d, Y H:i') }}</p>
                         </div>
                         <div class="col-md-6">
@@ -24,7 +25,7 @@
                                     {{ ucfirst($ticket->urgency) }}
                                 </span>
                             </p>
-                            <p><strong>Assigned to:</strong> {{ $ticket->assignedTo ? $ticket->assignedTo->name : 'Not assigned yet' }}</p>
+                            <p><strong>Assigned to:</strong> You</p>
                             <p><strong>Last updated:</strong> {{ $ticket->updated_at->format('M d, Y H:i') }}</p>
                         </div>
                     </div>
@@ -48,7 +49,32 @@
                     @endif
 
                     <div class="mt-4">
-                        <a href="{{ route('staff.dashboard') }}" class="btn btn-secondary">
+                        <h5>Update Status</h5>
+                        <form action="{{ route('head_office.tickets.status', $ticket->id) }}" method="POST">
+                            @csrf
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                        <option value="">Select Status</option>
+                                        <option value="closed" {{ $ticket->status == 'closed' ? 'selected' : '' }}>Closed</option>
+                                        <option value="escalated" {{ $ticket->status == 'escalated' ? 'selected' : '' }}>Escalated</option>
+                                        <option value="not_resolved" {{ $ticket->status == 'not_resolved' ? 'selected' : '' }}>Not Resolved</option>
+                                    </select>
+                                    @error('status')
+                                        <div class="invalid-feedback">
+                                            {{ $message }}
+                                        </div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-danger">Update Status</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{{ route('head_office.dashboard') }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
                         </a>
                     </div>

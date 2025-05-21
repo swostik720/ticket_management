@@ -5,7 +5,7 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
                     <h4 class="mb-0">Ticket #{{ $ticket->id }}: {{ $ticket->title }}</h4>
                     <span class="badge bg-{{ $ticket->status === 'open' ? 'danger' : ($ticket->status === 'in_progress' ? 'warning' : ($ticket->status === 'closed' ? 'success' : ($ticket->status === 'escalated' ? 'info' : 'secondary'))) }}">
                         {{ ucfirst(str_replace('_', ' ', $ticket->status)) }}
@@ -15,6 +15,7 @@
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <p><strong>Department:</strong> {{ $ticket->department->name }}</p>
+                            <p><strong>Branch:</strong> {{ $ticket->branch->name }}</p>
                             <p><strong>Created by:</strong> {{ $ticket->user->name }}</p>
                             <p><strong>Created at:</strong> {{ $ticket->created_at->format('M d, Y H:i') }}</p>
                         </div>
@@ -40,25 +41,25 @@
                     <div class="mb-4">
                         <h5>Attachment</h5>
                         <div class="p-3 bg-light rounded">
-                            <a href="{{ asset('storage/' . $ticket->attachment) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <a href="{{ asset('storage/' . $ticket->attachment) }}" target="_blank" class="btn btn-sm btn-outline-danger">
                                 <i class="fas fa-download me-2"></i> Download Attachment
                             </a>
                         </div>
                     </div>
                     @endif
 
-                    @admin
+                    @canassigntickets
                     <div class="mt-4">
-                        <h5>Assign Ticket</h5>
+                        <h5>Assign Ticket to Head Office Staff</h5>
                         <form action="{{ route('admin.tickets.assign', $ticket->id) }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
                                     <select name="assigned_to" class="form-select @error('assigned_to') is-invalid @enderror" required>
-                                        <option value="">Select Staff Member</option>
-                                        @foreach($staffMembers as $staff)
+                                        <option value="">Select Head Office Staff</option>
+                                        @foreach($headOfficeStaff as $staff)
                                             <option value="{{ $staff->id }}" {{ $ticket->assigned_to == $staff->id ? 'selected' : '' }}>
-                                                {{ $staff->name }}
+                                                {{ $staff->name }} ({{ $staff->department->name ?? 'No Department' }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -74,13 +75,13 @@
                             </div>
                         </form>
                     </div>
-                    @endadmin
+                    @endcanassigntickets
 
-                    @staff
+                    @headofficestaff
                     @if($ticket->assigned_to === Auth::id())
                     <div class="mt-4">
                         <h5>Update Status</h5>
-                        <form action="{{ route('staff.tickets.status', $ticket->id) }}" method="POST">
+                        <form action="{{ route('head_office.tickets.status', $ticket->id) }}" method="POST">
                             @csrf
                             <div class="row">
                                 <div class="col-md-6">
@@ -103,10 +104,10 @@
                         </form>
                     </div>
                     @endif
-                    @endstaff
+                    @endheadofficestaff
 
                     <div class="mt-4">
-                        <a href="{{ Auth::user()->isAdmin() ? route('admin.dashboard') : (Auth::user()->isStaff() ? route('staff.dashboard') : route('user.dashboard')) }}" class="btn btn-secondary">
+                        <a href="{{ Auth::user()->canAssignTickets() ? route('admin.dashboard') : (Auth::user()->isHeadOfficeStaff() ? route('head_office.dashboard') : route('staff.dashboard')) }}" class="btn btn-secondary">
                             <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
                         </a>
                     </div>

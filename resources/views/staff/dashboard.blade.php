@@ -4,12 +4,24 @@
 <div class="container-fluid">
     <h1 class="h3 mb-4">Staff Dashboard</h1>
 
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i> You are a staff member in the <strong>{{ $user->department->name ?? 'No Department' }}</strong> department at <strong>{{ $user->branch->name ?? 'No Branch' }}</strong> branch.
+    </div>
+
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="card text-white bg-primary">
                 <div class="card-body">
-                    <h5 class="card-title">Assigned Tickets</h5>
+                    <h5 class="card-title">My Tickets</h5>
                     <p class="card-text display-6">{{ $ticketCounts['total'] }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger">
+                <div class="card-body">
+                    <h5 class="card-title">Open</h5>
+                    <p class="card-text display-6">{{ $ticketCounts['open'] }}</p>
                 </div>
             </div>
         </div>
@@ -29,19 +41,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-info">
-                <div class="card-body">
-                    <h5 class="card-title">Escalated/Not Resolved</h5>
-                    <p class="card-text display-6">{{ $ticketCounts['escalated'] + $ticketCounts['not_resolved'] }}</p>
-                </div>
-            </div>
-        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4>My Tickets</h4>
+        <a href="{{ route('staff.tickets.create') }}" class="btn btn-danger">
+            <i class="fas fa-plus-circle me-2"></i> Create New Ticket
+        </a>
     </div>
 
     <div class="card shadow-sm">
         <div class="card-header bg-white">
-            <h5 class="mb-0">My Assigned Tickets</h5>
+            <h5 class="mb-0">My Submitted Tickets</h5>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -51,7 +62,8 @@
                             <th>ID</th>
                             <th>Title</th>
                             <th>Department</th>
-                            <th>Submitted By</th>
+                            <th>Branch</th>
+                            <th>Assigned To</th>
                             <th>Urgency</th>
                             <th>Status</th>
                             <th>Created</th>
@@ -64,7 +76,8 @@
                                 <td>{{ $ticket->id }}</td>
                                 <td>{{ $ticket->title }}</td>
                                 <td>{{ $ticket->department->name }}</td>
-                                <td>{{ $ticket->user->name }}</td>
+                                <td>{{ $ticket->branch->name }}</td>
+                                <td>{{ $ticket->assignedTo ? $ticket->assignedTo->name : 'Not assigned' }}</td>
                                 <td>
                                     <span class="badge bg-{{ $ticket->urgency === 'low' ? 'success' : ($ticket->urgency === 'medium' ? 'warning' : ($ticket->urgency === 'high' ? 'danger' : 'dark')) }}">
                                         {{ ucfirst($ticket->urgency) }}
@@ -84,7 +97,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center">No tickets assigned to you.</td>
+                                <td colspan="9" class="text-center">No tickets found. Create your first ticket!</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -14,16 +14,25 @@ class TicketController extends Controller
 {
     public function create()
     {
-        $departments = Department::all();
-        return view('tickets.create', compact('departments'));
+        // Staff can only create tickets for their own department and branch
+        $user = Auth::user();
+        $department = $user->department;
+        $branch = $user->branch;
+
+        if (!$department || !$branch) {
+            return redirect()->back()->with('error', 'You must be assigned to a department and branch to create tickets.');
+        }
+
+        return view('tickets.create', compact('department', 'branch'));
     }
 
     public function store(Request $request)
     {
+        $user = Auth::user();
+
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'department_id' => 'required|exists:departments,id',
             'urgency' => 'required|in:low,medium,high,critical',
             'attachment' => 'nullable|file|max:10240', // 10MB max
         ]);
@@ -42,38 +51,37 @@ class TicketController extends Controller
         $ticket = Ticket::create([
             'title' => $request->title,
             'description' => $request->description,
-            'department_id' => $request->department_id,
+            'department_id' => $user->department_id,
+            'branch_id' => $user->branch_id,
             'urgency' => $request->urgency,
             'attachment' => $attachmentPath,
             'user_id' => Auth::id(),
             'status' => 'open',
         ]);
 
-        return redirect()->route('user.tickets.show', $ticket->id)
+        return redirect()->route('staff.tickets.show', $ticket->id)
             ->with('success', 'Ticket created successfully.');
     }
 
     public function show($id)
     {
-        $ticket = Ticket::with(['department', 'user', 'assignedTo'])->findOrFail($id);
+        $ticket = Ticket::with(['department', 'user', 'assignedTo', 'branch'])->findOrFail($id);
 
-        // Check if user has permission to view this ticket
-        if (Auth::user()->isUser() && $ticket->user_id !== Auth::id()) {
-            abort(403, 'Unauthorized action.');
+        $user = Auth::user();
+        $headOfficeStaff = [];
+
+        if ($user->canAssignTickets()) {
+            $headOfficeStaff = User::where('role', 'head_office_staff')->get();
         }
 
-        $staffMembers = [];
-        if (Auth::user()->isAdmin()) {
-            $staffMembers = User::where('role', 'staff')->get();
-        }
-
-        return view('tickets.show', compact('ticket', 'staffMembers'));
+        return view('tickets.show', compact('ticket', 'headOfficeStaff'));
     }
 
     public function assign(Request $request, $id)
     {
-        // Only admin can assign tickets
-        if (!Auth::user()->isAdmin()) {
+        // Only admin or head of department can assign tickets
+        $user = Auth::user();
+        if (!$user->canAssignTickets()) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -97,8 +105,8 @@ class TicketController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        // Only staff can update ticket status
-        if (!Auth::user()->isStaff()) {
+        // Only head office staff can update ticket status
+        if (!Auth::user()->isHeadOfficeStaff()) {
             abort(403, 'Unauthorized action.');
         }
 

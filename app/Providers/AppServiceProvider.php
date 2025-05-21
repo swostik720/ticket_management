@@ -21,12 +21,20 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin();
         });
 
+        Gate::define('head_of_department', function (User $user) {
+            return $user->isHeadOfDepartment();
+        });
+
         Gate::define('staff', function (User $user) {
             return $user->isStaff();
         });
 
-        Gate::define('user', function (User $user) {
-            return $user->isUser();
+        Gate::define('head_office_staff', function (User $user) {
+            return $user->isHeadOfficeStaff();
+        });
+
+        Gate::define('assign_tickets', function (User $user) {
+            return $user->canAssignTickets();
         });
 
         // Define Blade directives for roles
@@ -34,12 +42,20 @@ class AppServiceProvider extends ServiceProvider
             return auth()->check() && auth()->user()->isAdmin();
         });
 
+        Blade::if('headofdepartment', function () {
+            return auth()->check() && auth()->user()->isHeadOfDepartment();
+        });
+
         Blade::if('staff', function () {
             return auth()->check() && auth()->user()->isStaff();
         });
 
-        Blade::if('user', function () {
-            return auth()->check() && auth()->user()->isUser();
+        Blade::if('headofficestaff', function () {
+            return auth()->check() && auth()->user()->isHeadOfficeStaff();
+        });
+
+        Blade::if('canassigntickets', function () {
+            return auth()->check() && auth()->user()->canAssignTickets();
         });
     }
 }

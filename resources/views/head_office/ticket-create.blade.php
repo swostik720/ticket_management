@@ -9,7 +9,7 @@
                     <h4 class="mb-0">Create New Ticket</h4>
                 </div>
                 <div class="card-body">
-                    <form method="POST" action="{{ route('staff.tickets.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('head_office.tickets.store') }}" enctype="multipart/form-data">
                         @csrf
 
                         <div class="mb-3">
@@ -70,7 +70,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('staff.dashboard') }}" class="btn btn-secondary">Cancel</a>
+                            <a href="{{ route('head_office.dashboard') }}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-danger">Submit Ticket</button>
                         </div>
                     </form>

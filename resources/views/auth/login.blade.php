@@ -5,17 +5,23 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-danger text-white">
                     <h4 class="mb-0">Login</h4>
                 </div>
                 <div class="card-body">
+                    @if (session('status'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                            @error('email')
+                            <label for="username" class="form-label">Username</label>
+                            <input id="username" type="text" class="form-control @error('username') is-invalid @enderror" name="username" value="{{ old('username') }}" required autocomplete="username" autofocus>
+                            @error('username')
                                 <div class="invalid-feedback">
                                     {{ $message }}
                                 </div>
@@ -40,13 +46,13 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="submit" class="btn btn-danger">
                                 Login
                             </button>
                         </div>
 
                         <div class="mt-3 text-center">
-                            <p>Don't have an account? <a href="{{ route('register') }}">Register</a></p>
+                            <a href="{{ route('password.request') }}" class="text-decoration-none text-danger fw-semibold">Forgot Your Password?</a>
                         </div>
                     </form>
                 </div>
